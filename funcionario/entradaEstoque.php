@@ -1,0 +1,1 @@
+permiti o funcionario somente adicionar ou ajustar o estoque

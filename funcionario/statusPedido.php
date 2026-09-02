@@ -1,0 +1,1 @@
+altera, exclui, cancela e atualiza status

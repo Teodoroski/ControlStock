@@ -1,0 +1,1 @@
+obs(Gabi): colocar a estrutra de todas as tabelas de banco de dados aqui, para facilitar.
