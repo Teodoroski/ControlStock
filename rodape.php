@@ -1,0 +1,1 @@
+mesmo esquema do menu, desenvolve aqui e depois dar um include.php em todas as de mais paginas
