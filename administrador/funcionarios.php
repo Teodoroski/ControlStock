@@ -1,1 +1,0 @@
-exibe, cadastra e exclui
