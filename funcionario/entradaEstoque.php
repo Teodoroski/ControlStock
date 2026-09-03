@@ -1,12 +1,28 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
+<!-- <?php
+// Verificando se está logado
+session_start();
+if (isset($_SESSION['id'])) {
+    $id_sessao = $_SESSION["id"];
+} else {
+    header("Location: ../login.php");
+    exit(); // Adicionado para garantir que o script pare de executar após o redirecionamento
+}
+?>
+
+permiti o funcionario somente adicionar ou ajustar o estoque de produtos já cadastrados -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
- </head>
- <body>
-    <!-- permiti o funcionario somente adicionar ou ajustar o estoque -->
+    <link rel="stylesheet" href="style.css">
+    <title>Entrada de estoque</title>
+</head>
 
- </body>
- </html>
+<body>
+    <?php include '../menu.php'; ?>
+    <?php include '../rodape.php'; ?>
+</body>
+</html>
