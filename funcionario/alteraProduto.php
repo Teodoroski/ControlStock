@@ -7,7 +7,10 @@ if (isset($_SESSION['id'])) {
     header("Location: ../login.php");
     exit(); // Adicionado para garantir que o script pare de executar após o redirecionamento
 }
-?> -->
+?>  -->
+
+exibe todos os produtos permitino o 
+administrador atualizar qualquer dado do produto (nome, codigo de barras,..)
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -16,7 +19,7 @@ if (isset($_SESSION['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Controle Estoque</title>
+    <title>Alterar Dados Produtos</title>
 </head>
 
 <body>
