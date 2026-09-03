@@ -1,6 +1,6 @@
-chatgpt faz
+<!-- chatgpt faz
 
-tem que ter um link no rodape (include lembra?) Já coloquei
+tem que ter um link no rodape (include lembra?) Já coloquei -->
 
 
 <!DOCTYPE html>
