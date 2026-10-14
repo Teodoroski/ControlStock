@@ -1,0 +1,36 @@
+CREATE TABLE `tb_categoria` (
+  `idCategoria` int(200) NOT NULL,
+  `nomeCategoria` varchar(500) NOT NULL,
+  `idUsuario` int(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `tb_entradasaida` (
+  `isEntradaSaida` int(200) NOT NULL,
+  `tipoEntradaSaida` varchar(100) NOT NULL,
+  `quantidadeEntradaSaida` int(200) NOT NULL,
+  `idUsuario` int(200) NOT NULL,
+  `idProduto` int(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `tb_produtos` (
+  `idProduto` int(200) NOT NULL,
+  `nomeProduto` varchar(500) NOT NULL,
+  `codigoBarras` int(10) NOT NULL,
+  `estoqueProduto` int(200) NOT NULL,
+  `precoProduto` decimal(10,2) NOT NULL,
+  `estoqueMinimo` int(200) NOT NULL,
+  `idUsuario` int(200) NOT NULL,
+  `idCategoria` int(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `tb_usuario` (
+  `idUsuario` int(200) NOT NULL,
+  `nomeUsuario` varchar(500) NOT NULL,
+  `emailUsuario` varchar(500) NOT NULL,
+  `cpfUsuario` varchar(14) NOT NULL,
+  `telefoneUsuario` varchar(14) NOT NULL,
+  `senhaUsuario` varchar(500) NOT NULL
+)
