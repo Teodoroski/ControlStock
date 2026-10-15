@@ -6,7 +6,26 @@ if (!isset($_SESSION['idUsuario'])) {
     exit();
 }
 
+// 1. Conexão com a base de dados
+require_once '../conecta/conecta.php'; 
+
 $idUsuario = (int)$_SESSION['idUsuario'];
+
+// 2. Consulta dos dados do utilizador
+$sql = "SELECT nomeUsuario, emailUsuario, cpfUsuario, telefoneUsuario FROM tb_usuario WHERE idUsuario = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $idUsuario);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($usuario = $result->fetch_assoc()) {
+    $nomeUsuario     = $usuario['nomeUsuario'];
+    $emailUsuario    = $usuario['emailUsuario'];
+    $cpfUsuario      = $usuario['cpfUsuario'];
+    $telefoneUsuario = $usuario['telefoneUsuario'];
+} else {
+    $nomeUsuario = $emailUsuario = $cpfUsuario = $telefoneUsuario = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -16,6 +35,59 @@ $idUsuario = (int)$_SESSION['idUsuario'];
     <title>Configurações - controlStoke</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .alert-container {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .alert-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .alert-close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            padding: 0 5px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .alert-close-btn:hover {
+            opacity: 1;
+        }
+        /* Cores do Alerta */
+        .alert-sucesso {
+            background-color: #e6f4ea;
+            color: #137333;
+            border-left: 5px solid #34a853;
+        }
+        .alert-erro {
+            background-color: #fce8e6;
+            color: #c5221f;
+            border-left: 5px solid #ea4335;
+        }
+        .alert-aviso {
+            background-color: #fef7e0;
+            color: #b06000;
+            border-left: 5px solid #fbbc04;
+        }
+        </style>
 </head>
 <body>
 
@@ -31,6 +103,82 @@ $idUsuario = (int)$_SESSION['idUsuario'];
             </div>
         </div>
 
+       <?php if (isset($_GET['status'])): ?>
+            <div class="alert-container" id="box-alerta">
+                <?php
+                    $status = $_GET['status'];
+                    
+                    if ($status === 'dados_sucesso') {
+                        echo '
+                        <div class="alert-custom alert-sucesso">
+                            <div class="alert-content">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Dados pessoais atualizados com sucesso!</span>
+                            </div>
+                            <button type="button" class="alert-close-btn" onclick="document.getElementById(\'box-alerta\').remove()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>';
+                    } elseif ($status === 'senha_alterada') {
+                        echo '
+                        <div class="alert-custom alert-sucesso">
+                            <div class="alert-content">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Sua senha foi alterada com sucesso!</span>
+                            </div>
+                            <button type="button" class="alert-close-btn" onclick="document.getElementById(\'box-alerta\').remove()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>';
+                    } elseif ($status === 'senha_incorreta') {
+                        echo '
+                        <div class="alert-custom alert-erro">
+                            <div class="alert-content">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                <span>A senha atual informada está incorreta.</span>
+                            </div>
+                            <button type="button" class="alert-close-btn" onclick="document.getElementById(\'box-alerta\').remove()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>';
+                    } elseif ($status === 'senhas_diferentes') {
+                        echo '
+                        <div class="alert-custom alert-erro">
+                            <div class="alert-content">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>A nova senha e a confirmação não coincidem.</span>
+                            </div>
+                            <button type="button" class="alert-close-btn" onclick="document.getElementById(\'box-alerta\').remove()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>';
+                    } elseif ($status === 'senha_fraca') {
+                        echo '
+                        <div class="alert-custom alert-aviso">
+                            <div class="alert-content">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.</span>
+                            </div>
+                            <button type="button" class="alert-close-btn" onclick="document.getElementById(\'box-alerta\').remove()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>';
+                    } elseif ($status === 'campos_vazios') {
+                        echo '
+                        <div class="alert-custom alert-aviso">
+                            <div class="alert-content">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>Por favor, preencha todos os campos obrigatórios.</span>
+                            </div>
+                            <button type="button" class="alert-close-btn" onclick="document.getElementById(\'box-alerta\').remove()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>';
+                    }
+                ?>
+            </div>
+        <?php endif; ?>
+
         <div class="settings-grid">
             
             <!-- COLUNA 1: DADOS DA CONTA -->
@@ -40,13 +188,13 @@ $idUsuario = (int)$_SESSION['idUsuario'];
                     <span>DADOS DA CONTA</span>
                 </div>
 
-                <form action="processa_dados_conta.php" method="POST" class="product-form">
+                <form action="alteraDados.php" method="POST" id="form-dados-conta" class="product-form">
                     
                     <div class="form-group">
                         <label for="nome_completo">Nome Completo</label>
                         <div class="input-icon-wrapper">
                             <i class="fa-regular fa-user input-icon"></i>
-                            <input type="text" id="nome_completo" name="nome_completo" value="Gabrieli Gonaçalve Barbosa" required>
+                            <input type="text" id="nome_completo" name="nome_completo" value="<?php echo htmlspecialchars($nomeUsuario); ?>" required>
                         </div>
                     </div>
 
@@ -54,7 +202,7 @@ $idUsuario = (int)$_SESSION['idUsuario'];
                         <label for="cpf">CPF</label>
                         <div class="input-icon-wrapper">
                             <i class="fa-regular fa-id-card input-icon"></i>
-                            <input type="text" id="cpf" name="cpf" value="000.000.000-00" required>
+                            <input type="text" id="cpf" name="cpf" value="<?php echo htmlspecialchars($cpfUsuario); ?>" maxlength="14" required>
                         </div>
                     </div>
 
@@ -62,7 +210,7 @@ $idUsuario = (int)$_SESSION['idUsuario'];
                         <label for="email">E-mail</label>
                         <div class="input-icon-wrapper">
                             <i class="fa-regular fa-envelope input-icon"></i>
-                            <input type="email" id="email" name="email" value="gabrieli@gmail.com" required>
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($emailUsuario); ?>" required>
                         </div>
                     </div>
 
@@ -70,7 +218,7 @@ $idUsuario = (int)$_SESSION['idUsuario'];
                         <label for="telefone">Telefone</label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-phone input-icon"></i>
-                            <input type="text" id="telefone" name="telefone" value="(00) 00000-0000" required>
+                            <input type="text" id="telefone" name="telefone" value="<?php echo htmlspecialchars($telefoneUsuario); ?>" maxlength="15" required>
                         </div>
                     </div>
 
@@ -84,10 +232,10 @@ $idUsuario = (int)$_SESSION['idUsuario'];
                 <div class="settings-card">
                     <div class="settings-card-title">
                         <i class="fa-regular fa-user"></i>
-                        <span>DADOS DA CONTA</span>
+                        <span>ALTERAR SENHA</span>
                     </div>
 
-                    <form action="processa_altera_senha.php" method="POST" class="product-form">
+                    <form action="alteraSenha.php" method="POST" class="product-form">
                         
                         <div class="form-group">
                             <label for="senha_atual">Senha atual</label>
@@ -159,7 +307,6 @@ $idUsuario = (int)$_SESSION['idUsuario'];
     </footer>
 
     <script>
-        // Função para mostrar/ocultar senha
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === 'password') {
@@ -173,7 +320,6 @@ $idUsuario = (int)$_SESSION['idUsuario'];
             }
         }
 
-        // Modal Excluir Conta
         const modalDeleteAccount = document.getElementById('modal-excluir-conta');
 
         function openDeleteAccountModal() {
@@ -185,8 +331,7 @@ $idUsuario = (int)$_SESSION['idUsuario'];
         }
 
         function confirmDeleteAccount() {
-            alert('Sua conta foi excluída com sucesso.');
-            window.location.href = 'login.php';
+            window.location.href = 'excluirConta.php';
         }
 
         modalDeleteAccount.addEventListener('click', function(e) {
@@ -195,6 +340,38 @@ $idUsuario = (int)$_SESSION['idUsuario'];
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && modalDeleteAccount.classList.contains('active')) closeDeleteAccountModal();
+        });
+
+        // Máscara de CPF em JavaScript
+        document.addEventListener('DOMContentLoaded', function () {
+            const cpfInput = document.getElementById('cpf');
+            const formDados = document.getElementById('form-dados-conta');
+
+            function aplicarMascaraCPF(valor) {
+                let v = valor.replace(/\D/g, '');
+                if (v.length > 11) v = v.slice(0, 11);
+
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                return v;
+            }
+
+            if (cpfInput && cpfInput.value) {
+                cpfInput.value = aplicarMascaraCPF(cpfInput.value);
+            }
+
+            if (cpfInput) {
+                cpfInput.addEventListener('input', function (e) {
+                    e.target.value = aplicarMascaraCPF(e.target.value);
+                });
+            }
+
+            if (formDados) {
+                formDados.addEventListener('submit', function () {
+                    cpfInput.value = cpfInput.value.replace(/\D/g, '');
+                });
+            }
         });
     </script>
 </body>
