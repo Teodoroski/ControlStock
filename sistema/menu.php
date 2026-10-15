@@ -334,7 +334,7 @@
             
             <div class="logout-modal-actions">
                 <button class="btn-cancel-logout" id="btn-cancel-logout">CANCELAR</button>
-                <a href="logout.php" class="btn-confirm-logout">
+                <a href="sair.php" class="btn-confirm-logout">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>SAIR</span>
                 </a>

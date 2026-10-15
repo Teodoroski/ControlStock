@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+$idUsuario = (int)$_SESSION['id'];
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

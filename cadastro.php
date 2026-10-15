@@ -1,3 +1,39 @@
+<?php
+$mensagem = '';
+$tipoMensagem = '';
+
+if (isset($_GET['erro'])) {
+    $tipoMensagem = 'erro';
+    switch ($_GET['erro']) {
+        case 'campos_vazios':
+            $mensagem = 'Por favor, preencha todos os campos obrigatórios.';
+            break;
+        case 'senhas_diferentes':
+            $mensagem = 'As senhas informadas não coincidem.';
+            break;
+        case 'email_invalido':
+            $mensagem = 'O e-mail informado é inválido.';
+            break;
+        case 'cpf_invalido':
+            $mensagem = 'O CPF informado deve conter 11 dígitos.';
+            break;
+        case 'usuario_existente':
+            $mensagem = 'E-mail ou CPF já cadastrados em nosso sistema.';
+            break;
+        case 'cadastro_falhou':
+            $mensagem = 'Ocorreu um erro ao realizar o cadastro. Tente novamente.';
+            break;
+        default:
+            $mensagem = 'Erro inesperado ao processar o cadastro.';
+            break;
+    }
+} elseif (isset($_GET['sucesso'])) {
+    $tipoMensagem = 'sucesso';
+    if ($_GET['sucesso'] === 'cadastrado') {
+        $mensagem = 'Cadastro realizado com sucesso! Você já pode fazer login.';
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -17,10 +53,18 @@
         </div>
         <p class="login-subtitle">Faça seu cadastro</p>
 
+        <!-- Bloco para Exibição das Mensagens do PHP -->
+        <?php if (!empty($mensagem)): ?>
+            <div class="alert-box <?php echo $tipoMensagem; ?>">
+                <i class="fa-solid <?php echo $tipoMensagem === 'erro' ? 'fa-triangle-exclamation' : 'fa-circle-check'; ?>"></i>
+                <span><?php echo htmlspecialchars($mensagem); ?></span>
+            </div>
+        <?php endif; ?>
+
         <form action="cadastraUsuario.php" method="POST">
             
             <div class="form-group">
-                <label for="nome">NOME COMPLETO</label>
+                <label for="nomeCompleto">NOME COMPLETO</label>
                 <div class="input-container">
                     <input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Digite seu nome completo" required autocomplete="off">
                 </div>
@@ -40,7 +84,6 @@
                 </div>
             </div>
 
-            <!-- Telefone -->
             <div class="form-group">
                 <label for="telefone">TELEFONE</label>
                 <div class="input-container">
@@ -82,30 +125,20 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-
-        function exibirErro(mensagem) {
-                const erroDiv = document.getElementById('erro-mensagem');
-                erroDiv.innerHTML = mensagem;
-                erroDiv.style.display = 'block';
-        }
-
-        function ocultarErro() {
-            const erroDiv = document.getElementById('erro-mensagem');
-            erroDiv.style.display = 'none';
-            erroDiv.innerHTML = '';
-        }
         
         // Alternar visualização da senha
         function setupPasswordToggle(btnId, inputId) {
             const btn = document.getElementById(btnId);
             const input = document.getElementById(inputId);
 
-            btn.addEventListener('click', function () {
-                const isPassword = input.getAttribute('type') === 'password';
-                input.setAttribute('type', isPassword ? 'text' : 'password');
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
+            if (btn && input) {
+                btn.addEventListener('click', function () {
+                    const isPassword = input.getAttribute('type') === 'password';
+                    input.setAttribute('type', isPassword ? 'text' : 'password');
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
         }
 
         setupPasswordToggle('btn-toggle-senha', 'senha');
@@ -113,57 +146,57 @@
 
         // Máscara CPF
         const cpfInput = document.getElementById('cpf');
-        cpfInput.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            e.target.value = value;
-        });
+        if (cpfInput) {
+            cpfInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.slice(0, 11);
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                e.target.value = value;
+            });
+        }
 
         // Máscara Telefone
         const telInput = document.getElementById('telefone');
-        telInput.addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-            value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-            value = value.replace(/(\d{5})(\d)/, '$1-$2');
-            e.target.value = value;
-        });
+        if (telInput) {
+            telInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.slice(0, 11);
+                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                e.target.value = value;
+            });
+        }
 
-        // --- VALIDAÇÃO DA SENHA NO FORMULÁRIO ---
+        // Validação da Senha antes do envio no Frontend
         const form = document.querySelector('form');
         const senhaInput = document.getElementById('senha');
         const confirmaSenhaInput = document.getElementById('confirma_senha');
 
-        form.addEventListener('submit', function (e) {
-            const senha = senhaInput.value;
-            const confirmaSenha = confirmaSenhaInput.value;
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                const senha = senhaInput.value;
+                const confirmaSenha = confirmaSenhaInput.value;
 
-            // Expressão regular (Regex) para os requisitos:
-            // - Pelo menos 8 caracteres
-            // - Pelo menos 1 letra maiúscula (?=.*[A-Z])
-            // - Pelo menos 1 letra minúscula (?=.*[a-z])
-            // - Pelo menos 1 número (?=.*\d)
-            // - Pelo menos 1 caractere especial (?=.*[@$!%*?&. \-_#])
-            const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.\-_#])[A-Za-z\d@$!%*?&.\-_#]{8,}$/;
+                const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.\-_#])[A-Za-z\d@$!%*?&.\-_#]{8,}$/;
 
-            if (!regexSenha.test(senha)) {
-                e.preventDefault(); // Impede o envio do formulário
-                alert('A senha deve conter no mínimo 8 caracteres, incluindo ao menos uma letra maiúscula, uma minúscula, um número e um caractere especial (!@#$%^&* etc).');
-                senhaInput.focus();
-                return;
-            }
+                if (!regexSenha.test(senha)) {
+                    e.preventDefault();
+                    alert('A senha deve conter no mínimo 8 caracteres, incluindo ao menos uma letra maiúscula, uma minúscula, um número e um caractere especial (!@#$%^&* etc).');
+                    senhaInput.focus();
+                    return;
+                }
 
-            if (senha !== confirmaSenha) {
-                e.preventDefault(); // Impede o envio do formulário
-                alert('As senhas não coincidem. Por favor, verifique.');
-                confirmaSenhaInput.focus();
-                return;
-            }
-        });
+                if (senha !== confirmaSenha) {
+                    e.preventDefault();
+                    alert('As senhas não coincidem. Por favor, verifique.');
+                    confirmaSenhaInput.focus();
+                    return;
+                }
+            });
+        }
     });
-</script>
+    </script>
 </body>
 </html>

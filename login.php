@@ -1,3 +1,31 @@
+<?php
+$mensagem = '';
+$tipoMensagem = '';
+
+if (isset($_GET['erro'])) {
+    $tipoMensagem = 'erro';
+    switch ($_GET['erro']) {
+        case 'dados_invalidos':
+            $mensagem = 'Usuário ou senha incorretos.';
+            break;
+        case 'campos_vazios':
+            $mensagem = 'Preencha todos os campos para entrar.';
+            break;
+        case 'nao_autenticado':
+            $mensagem = 'Você precisa fazer login para acessar essa página.';
+            break;
+        default:
+            $mensagem = 'Ocorreu um erro ao tentar fazer o login.';
+            break;
+    }
+} elseif (isset($_GET['sucesso'])) {
+    $tipoMensagem = 'sucesso';
+    if ($_GET['sucesso'] === 'cadastrado') {
+        $mensagem = 'Cadastro realizado com sucesso! Faça seu login abaixo.';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -17,11 +45,19 @@
         </div>
         <p class="login-subtitle">Faça seu login</p>
 
-        <form action="processa_login.php" method="POST">
+        <!-- Bloco para Exibição das Mensagens (Erro ou Sucesso) do PHP -->
+        <?php if (!empty($mensagem)): ?>
+            <div class="alert-box <?php echo $tipoMensagem; ?>">
+                <i class="fa-solid <?php echo $tipoMensagem === 'erro' ? 'fa-triangle-exclamation' : 'fa-circle-check'; ?>"></i>
+                <span><?php echo htmlspecialchars($mensagem); ?></span>
+            </div>
+        <?php endif; ?>
+
+        <form action="processaLogin.php" method="POST">
             <div class="form-group">
                 <label for="usuario">USUÁRIO</label>
                 <div class="input-container">
-                    <input type="text" id="usuario" name="usuario" placeholder="Digite seu usuário" required autocomplete="off">
+                    <input type="text" id="usuario" name="usuario" placeholder="Digite seu usuário ou e-mail" required autocomplete="off">
                 </div>
             </div>
 
@@ -51,13 +87,15 @@
             const togglePassword = document.getElementById('btn-toggle-password');
             const passwordInput = document.getElementById('senha');
 
-            togglePassword.addEventListener('click', function () {
-                const isPassword = passwordInput.getAttribute('type') === 'password';
-                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-                
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function () {
+                    const isPassword = passwordInput.getAttribute('type') === 'password';
+                    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                    
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
         });
     </script>
 </body>

@@ -1,3 +1,19 @@
+<?php
+// home.php
+// Inicie a sessão ANTES de qualquer saída
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verificando se está logado
+if (!isset($_SESSION['idUsuario'])) {
+    header("Location: ../login.php");
+    exit();
+}
+$idUsuario = $_SESSION['idUsuario'];
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
