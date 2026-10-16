@@ -7,6 +7,20 @@ if (!isset($_SESSION['idUsuario'])) {
 }
 
 $idUsuario = (int)$_SESSION['idUsuario'];
+
+//  Abrir conexão ao banco de dados
+require_once '../conecta/conecta.php';
+
+$sql = "SELECT idCategoria, nomeCategoria
+            FROM tb_categoria
+            WHERE idUsuario = ?
+            ORDER BY nomeCategoria";
+        
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $idUsuario);
+$stmt->execute();
+
+$resultado = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +41,25 @@ $idUsuario = (int)$_SESSION['idUsuario'];
         <div class="form-card" style="max-width: 520px; margin: 0 auto;">
             <h2>CADASTRAR CATEGORIAS</h2>
 
-            <form action="processa_categoria.php" method="POST" class="product-form" id="form-cadastrar-categoria">
+            <?php if (isset($_GET['status'])): ?>
+
+                <?php if ($_GET['status'] === 'sucesso'): ?>
+                    <p>Categoria cadastrada com sucesso!</p>
+                
+                <?php elseif ($_GET['status'] === 'nome_invalido'): ?>
+                    <p>Informe um nome válido para a categoria.</p>
+                
+                <?php else: ?>
+                    <p>Não foi possível cadastrar a categoria.</p>
+                <?php endif; ?>
+                
+            <?php endif; ?>
+
+            <form action="processa_adicionar_categoria.php" 
+            method="POST" 
+            class="product-form" 
+            id="form-cadastrar-categoria">
+            
                 <div class="form-group">
                     <label for="nome_categoria">CATEGORIA</label>
                     <input type="text" id="nome_categoria" name="nome_categoria" required autocomplete="off">
@@ -54,50 +86,106 @@ $idUsuario = (int)$_SESSION['idUsuario'];
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>01</strong></td>
-                            <td>BEBIDA C. ALCOOL</td>
-                            <td style="text-align: center;">
-                                <div class="table-actions" style="justify-content: center;">
-                                    <!-- Botão Excluir que abre o Modal de Exclusão -->
-                                    <button class="action-icon-btn delete" onclick="openDeleteCategoryModal('BEBIDA C. ALCOOL')" title="Excluir Categoria">
-                                        <i class="fa-regular fa-trash-can"></i>
-                                    </button>
-                                    <!-- Botão Editar que abre o Modal de Alteração -->
-                                    <button class="action-icon-btn edit" onclick="openEditCategoryModal('BEBIDA C. ALCOOL')" title="Editar Categoria">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>02</strong></td>
-                            <td>BEBIDA S. ALCOOL</td>
-                            <td style="text-align: center;">
-                                <div class="table-actions" style="justify-content: center;">
-                                    <button class="action-icon-btn delete" onclick="openDeleteCategoryModal('BEBIDA S. ALCOOL')" title="Excluir Categoria">
-                                        <i class="fa-regular fa-trash-can"></i>
-                                    </button>
-                                    <button class="action-icon-btn edit" onclick="openEditCategoryModal('BEBIDA S. ALCOOL')" title="Editar Categoria">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>03</strong></td>
-                            <td>DOCE</td>
-                            <td style="text-align: center;">
-                                <div class="table-actions" style="justify-content: center;">
-                                    <button class="action-icon-btn delete" onclick="openDeleteCategoryModal('DOCE')" title="Excluir Categoria">
-                                        <i class="fa-regular fa-trash-can"></i>
-                                    </button>
-                                    <button class="action-icon-btn edit" onclick="openEditCategoryModal('DOCE')" title="Editar Categoria">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                        <?php while ($categoria = $resultado->fetch_assoc()): ?>
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <?= (int)$categoria['idCategoria'] ?>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($categoria['nomeCategoria']) ?>
+                                </td>
+
+                                <td style="text-align: center;">
+                                   <div class="table-actions"
+                                        style="justify-content: center;">
+
+                                <button
+                                    type="button"
+                                    class="action-icon-btn delete"
+                                    onclick="openDeleteCategoryModal(
+                                        <?= (int)$categoria['idCategoria'] ?>,
+                                        <?= htmlspecialchars(
+                                            json_encode($categoria['nomeCategoria']),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    )"
+                                    title="Excluir Categoria">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="action-icon-btn edit"
+                                    onclick="openEditCategoryModal(
+                                        <?= (int)$categoria['idCategoria'] ?>,
+                                        <?= htmlspecialchars(
+                                            json_encode($categoria['nomeCategoria']),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    )"
+                                    title="Editar Categoria">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                                
+                                   </div> 
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+
+                            <!-- Rhuan: Comentei essa parte para testar o código que criei encima, ele é um laço de 
+                             repetição para mostrar as categorias que forem criando, para descomentar 
+                                    e só selecionar todas as linhas e usar: CTRL + U -->
+
+
+                        <!-- <tr> -->
+                            <!-- <td><strong>01</strong></td> -->
+                            <!-- <td>BEBIDA C. ALCOOL</td> -->
+                            <!-- <td style="text-align: center;"> -->
+                                <!-- <div class="table-actions" style="justify-content: center;"> -->
+                                 <!--   Botão Excluir que abre o Modal de Exclusão --> 
+                                    <!-- <button class="action-icon-btn delete" onclick="openDeleteCategoryModal('BEBIDA C. ALCOOL')" title="Excluir Categoria"> -->
+                                        <!-- <i class="fa-regular fa-trash-can"></i> -->
+                                    <!-- </button> -->
+                                 <!--  Botão Editar que abre o Modal de Alteração --> 
+                                    <!-- <button class="action-icon-btn edit" onclick="openEditCategoryModal('BEBIDA C. ALCOOL')" title="Editar Categoria"> -->
+                                        <!-- <i class="fa-regular fa-pen-to-square"></i> -->
+                                    <!-- </button> -->
+                                <!-- </div> -->
+                            <!-- </td> -->
+                        <!-- </tr> -->
+                        <!-- <tr> -->
+                            <!-- <td><strong>02</strong></td> -->
+                            <!-- <td>BEBIDA S. ALCOOL</td> -->
+                            <!-- <td style="text-align: center;"> -->
+                                <!-- <div class="table-actions" style="justify-content: center;"> -->
+                                    <!-- <button class="action-icon-btn delete" onclick="openDeleteCategoryModal('BEBIDA S. ALCOOL')" title="Excluir Categoria"> -->
+                                        <!-- <i class="fa-regular fa-trash-can"></i> -->
+                                    <!-- </button> -->
+                                    <!-- <button class="action-icon-btn edit" onclick="openEditCategoryModal('BEBIDA S. ALCOOL')" title="Editar Categoria"> -->
+                                        <!-- <i class="fa-regular fa-pen-to-square"></i> -->
+                                    <!-- </button> -->
+                                <!-- </div> -->
+                            <!-- </td> -->
+                        <!-- </tr> -->
+                        <!-- <tr> -->
+                            <!-- <td><strong>03</strong></td> -->
+                            <!-- <td>DOCE</td> -->
+                            <!-- <td style="text-align: center;"> -->
+                                <!-- <div class="table-actions" style="justify-content: center;"> -->
+                                    <!-- <button class="action-icon-btn delete" onclick="openDeleteCategoryModal('DOCE')" title="Excluir Categoria"> -->
+                                        <!-- <i class="fa-regular fa-trash-can"></i> -->
+                                    <!-- </button> -->
+                                    <!-- <button class="action-icon-btn edit" onclick="openEditCategoryModal('DOCE')" title="Editar Categoria"> -->
+                                        <!-- <i class="fa-regular fa-pen-to-square"></i> -->
+                                    <!-- </button> -->
+                                <!-- </div> -->
+                            <!-- </td> -->
+                        <!-- </tr> -->
                     </tbody>
                 </table>
             </div>
